@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solvemcp"
+dynamic = ["version"]
+description = "solvemcp - a small, pragmatic Model Context Protocol (MCP) client."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Jeremy Howard" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+dependencies = ["fastcore", "httpx"]
+
+[project.optional-dependencies]
+dev = [
+  "fastship",
+  "build",
+  "twine",
+]
+
+[project.urls]
+Homepage = "https://github.com/AnswerDotAI/solvemcp"
+
+[tool.setuptools.dynamic]
+version = { attr = "solvemcp.__version__" }
+
