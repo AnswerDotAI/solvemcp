@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "solvemcp",
+    "section": "",
+    "text": "It provides:",
+    "crumbs": [
+      "solvemcp"
+    ]
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "solvemcp",
+    "section": "Installation",
+    "text": "Installation\npip install solvemcp",
+    "crumbs": [
+      "solvemcp"
+    ]
+  },
+  {
+    "objectID": "index.html#quick-start",
+    "href": "index.html#quick-start",
+    "title": "solvemcp",
+    "section": "Quick Start",
+    "text": "Quick Start\n\nConnect to a local stdio server\n\nfrom solvemcp import MCPClient\n\n\nwith MCPClient.stdio([sys.executable, \"-u\", \"../tests/echoserver.py\"]) as mcp:\n    print(list(mcp.tools))\n    res = mcp.echo(text=\"hello\")\n    print(res)\n\n['echo']\n{'content': [{'type': 'text', 'text': 'hello'}]}\n\n\n\n\nConnect to an HTTP MCP server\n\nwith MCPClient.http(\"https://mcp.grep.app\") as mcp:\n    print(list(mcp.tools))\n    res = mcp.searchGitHub(query=\"class PtyProcess\", language=[\"Python\"])\n\n['searchGitHub']\n\n\n\ncts = res['content']\nprint(len(cts))\n\n10\n\n\n\nprint(cts[0]['text'][:500])\n\nRepository: sedwards2009/extraterm\nPath: extensions/ProxySessionBackend/src/python/ptyprocess/ptyprocess.py\nURL: https://github.com/sedwards2009/extraterm/blob/master/extensions/ProxySessionBackend/src/python/ptyprocess/ptyprocess.py\nLicense: MIT\n\nSnippets:\n--- Snippet 1 (Line 79) ---\n            (intr, eof) = (3, 4)\n    \n    _INTR = _byte(intr)\n    _EOF = _byte(eof)\n\nclass PtyProcessError(Exception):\n    \"\"\"Generic error class for this package.\"\"\"\n\n# setecho and setwinsize are pulled out here b",
+    "crumbs": [
+      "solvemcp"
+    ]
+  },
+  {
+    "objectID": "index.html#how-tool-calls-work",
+    "href": "index.html#how-tool-calls-work",
+    "title": "solvemcp",
+    "section": "How Tool Calls Work",
+    "text": "How Tool Calls Work\nFor each server tool with a valid Python identifier name, MCPClient adds a method dynamically. Example: a server tool named echo becomes mcp.echo(...).\nEquivalent forms:\nmcp.echo(text=\"hi\")\nmcp.call_tool(\"echo\", text=\"hi\")",
+    "crumbs": [
+      "solvemcp"
+    ]
+  },
+  {
+    "objectID": "index.html#streaming",
+    "href": "index.html#streaming",
+    "title": "solvemcp",
+    "section": "Streaming",
+    "text": "Streaming\nFor Streamable HTTP servers, use rpc_stream or call_tool_stream:\nfor msg in mcp.rpc_stream(\"tools/list\", params={}): print(msg)",
+    "crumbs": [
+      "solvemcp"
+    ]
+  },
+  {
+    "objectID": "index.html#module-layout",
+    "href": "index.html#module-layout",
+    "title": "solvemcp",
+    "section": "Module Layout",
+    "text": "Module Layout\n\nsolvemcp/client.py: MCPClient request lifecycle, initialization, tool binding, and RPC helpers.\nsolvemcp/transports.py: transport implementations plus SSE parsers and error types.",
+    "crumbs": [
+      "solvemcp"
+    ]
+  },
+  {
+    "objectID": "index.html#development",
+    "href": "index.html#development",
+    "title": "solvemcp",
+    "section": "Development",
+    "text": "Development\n\nRun tests:\npython tests/tests.py",
+    "crumbs": [
+      "solvemcp"
+    ]
+  }
+]
