@@ -22,6 +22,8 @@ dev = [ "fastship", "build", "twine", ]
 
 [project.urls]
 Homepage = "https://github.com/AnswerDotAI/solvemcp"
+Repository = "https://github.com/AnswerDotAI/solvemcp"
+Documentation = "https://AnswerDotAI.github.io/solvemcp/"
 
 [tool.setuptools.dynamic]
 version = { attr = "solvemcp.__version__" }
