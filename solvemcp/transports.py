@@ -1,6 +1,6 @@
 'Transport layer for solvemcp.'
 
-import contextlib, json, subprocess, threading, time
+import contextlib, json, os, subprocess, threading, time
 from typing import Any, Callable, Iterable, Iterator
 
 import httpx
@@ -127,6 +127,7 @@ class StdioTransport(MCPTransport):
 
     def __init__(self, cmd:list[str], *, cwd:str|None=None, env:dict|None=None, stderr:bool=True, text:bool=True,
                  debug:Callable[[str], None]|None=None):
+        if env is None: env = {k:v for k,v in os.environ.items() if k != 'PYTHONSAFEPATH'}
         self.cmd, self.cwd, self.env = cmd, cwd, env
         self._proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE if stderr else subprocess.DEVNULL, text=text, bufsize=1)
@@ -141,6 +142,7 @@ class StdioTransport(MCPTransport):
     def proc(self): return self._proc
 
     def start(self, on_message:Callable[[dict], None]):
+        self._stderr_lines = []
         def _read_stdout():
             try:
                 for line in iter(self._proc.stdout.readline, ''):
@@ -155,16 +157,28 @@ class StdioTransport(MCPTransport):
 
         threading.Thread(target=_read_stdout, name='mcp-stdio-stdout', daemon=True).start()
 
-        # Drain stderr to avoid deadlocks; user can also read proc.stderr if desired.
         if self._proc.stderr is not None:
-            def _drain_stderr():
-                for _ in iter(self._proc.stderr.readline, ''):
+            def _capture_stderr():
+                for line in iter(self._proc.stderr.readline, ''):
                     if self._stop.is_set(): break
+                    self._stderr_lines.append(line)
+            threading.Thread(target=_capture_stderr, name='mcp-stdio-stderr', daemon=True).start()
 
-            threading.Thread(target=_drain_stderr, name='mcp-stdio-stderr', daemon=True).start()
+    @property
+    def stderr_output(self): return ''.join(getattr(self, '_stderr_lines', []))
+
+    def check_alive(self):
+        "Raise MCPTransportError if subprocess has exited."
+        rc = self._proc.poll()
+        if rc is None: return
+        err = self.stderr_output.strip()
+        msg = f'Server process exited with code {rc}'
+        if err: msg += f':\n{err}'
+        raise MCPTransportError(msg)
 
     def send(self, msg:dict|list, *, stream:bool=False):
         if stream: raise MCPTransportError('stdio transport does not support per-request HTTP streaming')
+        self.check_alive()
         if self._proc.stdin is None: raise MCPTransportError('stdin is closed')
         s = _json_dumps(msg)
         with self._send_lock:

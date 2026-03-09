@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from fastcore.test import test_eq
 
 import http.server, json, socketserver, threading

@@ -18,11 +18,7 @@ classifiers = [
 dependencies = ["fastcore", "httpx"]
 
 [project.optional-dependencies]
-dev = [
-  "fastship",
-  "build",
-  "twine",
-]
+dev = [ "fastship", "build", "twine", ]
 
 [project.urls]
 Homepage = "https://github.com/AnswerDotAI/solvemcp"
@@ -30,3 +26,10 @@ Homepage = "https://github.com/AnswerDotAI/solvemcp"
 [tool.setuptools.dynamic]
 version = { attr = "solvemcp.__version__" }
 
+[project.entry-points.nbdev]
+safepyrun = "solvemcp._modidx:d"
+
+[tool.setuptools.packages.find]
+include = ["solvemcp"]
+
+[tool.nbdev]

@@ -239,6 +239,7 @@ class MCPClient:
 
             ok = ev.wait(timeout or self.request_timeout)
             if not ok:
+                if hasattr(self.t, 'check_alive'): self.t.check_alive()
                 if method != 'initialize':
                     with contextlib.suppress(Exception): self.cancel(rid, reason='timeout')
                 raise MCPTimeout(f'Timeout waiting for response to {method}')
