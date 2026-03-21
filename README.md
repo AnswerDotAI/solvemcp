@@ -45,6 +45,58 @@ with MCPClient.http("https://mcp.grep.app") as mcp:
     ['searchGitHub']
 
 ``` python
+mcp = MCPClient.http("https://mcp.grep.app")
+```
+
+``` python
+print(list(mcp.tools))
+res = mcp.searchGitHub(query="class PtyProcess", language=["Python"])
+```
+
+    ['searchGitHub']
+
+``` python
+mcp.searchGitHub?
+```
+
+``` python
+def searchGitHub(
+    query:Any, matchCase:Any=False, matchWholeWords:Any=False, useRegexp:Any=False, repo:Any=None, path:Any=None,
+    language:list=None
+):
+```
+
+    Find real-world code examples from over a million public GitHub repositories to help answer programming questions.
+
+    **IMPORTANT: This tool searches for literal code patterns (like grep), not keywords. Search for actual code that would appear in files:**
+    - ✅ Good: 'useState(', 'import React from', 'async function', '(?s)try {.*await'
+    - ❌ Bad: 'react tutorial', 'best practices', 'how to use'
+
+    **When to use this tool:**
+    - When implementing unfamiliar APIs or libraries and need to see real usage patterns
+    - When unsure about correct syntax, parameters, or configuration for a specific library
+    - When looking for production-ready examples and best practices for implementation
+    - When needing to understand how different libraries or frameworks work together
+
+    **Perfect for questions like:**
+    - "How do developers handle authentication in Next.js apps?" → Search: 'getServerSession' with language=['TypeScript', 'TSX']
+    - "What are common React error boundary patterns?" → Search: 'ErrorBoundary' with language=['TSX']
+    - "Show me real useEffect cleanup examples" → Search: '(?s)useEffect\(\(\) => {.*removeEventListener' with useRegexp=true
+    - "How do developers handle CORS in Flask applications?" → Search: 'CORS(' with matchCase=true and language=['Python']
+
+    Use regular expressions with useRegexp=true for flexible patterns like '(?s)useState\(.*loading' to find useState hooks with loading-related variables. Prefix the pattern with '(?s)' to match across multiple lines.
+
+    Filter by language, repository, or file path to narrow results.
+
+**File:** `~/aai-ws/toolslm/toolslm/funccall.py`
+
+**Type:** function
+
+``` python
+mcp.close()
+```
+
+``` python
 cts = res['content']
 print(len(cts))
 ```
@@ -72,7 +124,7 @@ print(cts[0]['text'][:500])
 
     # setecho and setwinsize are pulled out here b
 
-## How Tool Calls Work
+### How Tool Calls Work
 
 For each server tool with a valid Python identifier name, `MCPClient`
 adds a method dynamically. Example: a server tool named `echo` becomes
@@ -85,7 +137,7 @@ mcp.echo(text="hi")
 mcp.call_tool("echo", text="hi")
 ```
 
-## Streaming
+### Streaming
 
 For Streamable HTTP servers, use `rpc_stream` or `call_tool_stream`:
 
@@ -93,14 +145,14 @@ For Streamable HTTP servers, use `rpc_stream` or `call_tool_stream`:
 for msg in mcp.rpc_stream("tools/list", params={}): print(msg)
 ```
 
-## Module Layout
+## Development
+
+### Module Layout
 
 - `solvemcp/client.py`: `MCPClient` request lifecycle, initialization,
   tool binding, and RPC helpers.
 - `solvemcp/transports.py`: transport implementations plus SSE parsers
   and error types.
-
-## Development
 
 ### Run tests:
 
