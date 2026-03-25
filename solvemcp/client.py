@@ -7,11 +7,11 @@ import httpx
 from fastcore.basics import AttrDict
 from fastcore.meta import delegates
 from fastcore.utils import *
-from toolslm.funccall import mk_tool
+from toolslm.funccall import _py_nm, mk_tool
 
 from .transports import (LegacySSETransport, MCPError, MCPRemoteError, MCPTimeout, MCPTransport,
-                         MCPTransportError, StdioTransport, StreamableHTTPTransport, _as_list,
-                         _is_notif, _is_req, _is_resp, _now)
+    MCPTransportError, StdioTransport, StreamableHTTPTransport, _as_list,
+    _is_notif, _is_req, _is_resp, _now)
 
 
 def _rpc_msg(method:str, *, id_:Any=None, params:dict|None=None):
@@ -32,8 +32,8 @@ class MCPClient:
     supported_protocol_versions = ('2025-06-18', '2025-03-26', '2024-11-05')
 
     def __init__(self, transport:MCPTransport, *, client_name:str='solvemcp', client_version:str='0.1.0',
-                 capabilities:dict|None=None, protocol_version:str|None=None, init_timeout:float=20.0,
-                 request_timeout:float=30.0, auto_initialize:bool=True, auto_tools:bool=True):
+        capabilities:dict|None=None, protocol_version:str|None=None, init_timeout:float=20.0,
+        request_timeout:float=30.0, auto_initialize:bool=True, auto_tools:bool=True):
         self.t = transport
         self.client_info = dict(name=client_name, version=client_version)
         self.capabilities = capabilities or {}
@@ -106,7 +106,7 @@ class MCPClient:
     def initialize(self, *, timeout:float|None=None, capabilities:dict|None=None, protocol_version:str|None=None):
         if protocol_version: self.protocol_version = protocol_version
         init_params = dict(protocolVersion=self.protocol_version, capabilities=capabilities or self.capabilities,
-                           clientInfo=self.client_info)
+            clientInfo=self.client_info)
 
         last_err = None
         versions = (self.protocol_version,) + tuple(v for v in self.supported_protocol_versions if v != self.protocol_version)
@@ -281,9 +281,10 @@ class MCPClient:
 
         for t in self.tools.values():
             name = t.name
-            if not name or not name.isidentifier(): continue
-            if hasattr(self, name): continue
-            setattr(self, name, mk_tool(self.call_tool, t))
+            if not name: continue
+            py_name = _py_nm(name)
+            if not py_name or hasattr(self, py_name): continue
+            setattr(self, py_name, mk_tool(self.call_tool, t))
         return self.tools
 
     def call_tool(self, name:str, **kwargs)->AttrDict: return self.rpc('tools/call', dict(name=name, arguments=kwargs))
@@ -293,7 +294,7 @@ class MCPClient:
 
     def __dir__(self):
         base = set(super().__dir__())
-        tools = set(getattr(self, 'tools', {}).keys())
+        tools = {_py_nm(name) for name in getattr(self, 'tools', {}).keys()}
         return sorted(base | tools)
 
 
