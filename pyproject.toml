@@ -35,3 +35,4 @@ safepyrun = "solvemcp._modidx:d"
 include = ["solvemcp"]
 
 [tool.nbdev]
+allowed_metadata_keys = ['solveit_dialog_mode', 'solveit_ver']
