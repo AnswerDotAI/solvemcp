@@ -1,6 +1,7 @@
 'High-level MCP client interface for solvemcp.'
 
 import contextlib, threading
+from time import sleep
 from typing import Any, Callable, Iterator
 
 import httpx
