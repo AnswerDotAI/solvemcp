@@ -7,6 +7,8 @@ from pathlib import Path
 from fake_payloads import initialize_result, listing_notification, rpc_error, rpc_result, tools_list_result, tool_call_result
 from solvemcp import *
 
+test_eq.__test__ = False
+
 
 # --- SSE parsing
 sample = 'data: {"a":1}\n\ndata: {"b":2}\n\n'
@@ -82,8 +84,7 @@ def _run_http_fake_server():
                 resp = tools_list_result(rid)
                 events = [
                     'data: ' + json.dumps(notif, separators=(',', ':')) + '\n\n',
-                    'data: ' + json.dumps(resp, separators=(',', ':')) + '\n\n',
-                ]
+                    'data: ' + json.dumps(resp, separators=(',', ':')) + '\n\n']
                 self._send_sse(events)
                 return
 
@@ -139,3 +140,75 @@ if __name__ == '__main__':
             test_eq('notifications/message' in methods, True)
     finally: shutdown()
     print('ok')
+
+
+def test_refresh_tools_attaches_sanitized_attr_for_hyphenated_tool():
+    calls = []
+    schema = dict(type='object', properties={'text': dict(type='string', description='text')}, required=['text'])
+    tools = [dict(name='codex-reply', description='Reply to Codex', inputSchema=schema)]
+
+    def rpc(method, params=None, timeout=None):
+        calls.append((method, params))
+        if method == 'tools/list': return dict(tools=tools)
+        if method == 'tools/call': return dict(content=[dict(type='text', text=params['arguments']['text'])])
+        raise AssertionError(f'unexpected method: {method}')
+
+    c = object.__new__(MCPClient)
+    c.rpc = rpc
+
+    MCPClient.refresh_tools(c)
+
+    test_eq('codex-reply' in c.tools, True)
+    test_eq(hasattr(c, 'codex_reply'), True)
+
+    c.codex_reply(text='hi')
+
+    test_eq(calls[-1][0], 'tools/call')
+    test_eq(calls[-1][1]['name'], 'codex-reply')
+    test_eq(calls[-1][1]['arguments'], {'text': 'hi'})
+
+
+def test_dir_lists_sanitized_tool_names():
+    schema = dict(type='object', properties={'text': dict(type='string', description='text')}, required=['text'])
+    tools = [dict(name='codex-reply', description='Reply to Codex', inputSchema=schema)]
+
+    def rpc(method, params=None, timeout=None):
+        if method == 'tools/list': return dict(tools=tools)
+        raise AssertionError(f'unexpected method: {method}')
+
+    c = object.__new__(MCPClient)
+    c.rpc = rpc
+
+    MCPClient.refresh_tools(c)
+
+    names = dir(c)
+
+    test_eq('codex_reply' in names, True)
+    test_eq('codex-reply' in names, False)
+
+
+def test_refresh_tools_uses_py_nm_rules_for_keywords_and_leading_digits():
+    calls = []
+    schema = dict(type='object', properties={'text': dict(type='string', description='text')}, required=['text'])
+    tools = [dict(name='class', description='Python keyword name', inputSchema=schema),
+        dict(name='1start', description='Leading digit name', inputSchema=schema)]
+
+    def rpc(method, params=None, timeout=None):
+        calls.append((method, params))
+        if method == 'tools/list': return dict(tools=tools)
+        if method == 'tools/call': return dict(content=[dict(type='text', text=params['name'])])
+        raise AssertionError(f'unexpected method: {method}')
+
+    c = object.__new__(MCPClient)
+    c.rpc = rpc
+
+    MCPClient.refresh_tools(c)
+
+    test_eq(hasattr(c, 'class_'), True)
+    test_eq(hasattr(c, '_1start'), True)
+
+    c.class_(text='first')
+    test_eq(calls[-1][1]['name'], 'class')
+
+    c._1start(text='second')
+    test_eq(calls[-1][1]['name'], '1start')
