@@ -15,7 +15,7 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
 ]
 
-dependencies = ["fastcore", "httpx"]
+dependencies = ["fastcore", "httpx", "toolslm"]
 
 [project.optional-dependencies]
 dev = [ "fastship", "build", "twine", ]

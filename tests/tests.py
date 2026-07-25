@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from fastcore.test import test_eq
+from fastcore.test import test_eq, test_fail
 
 import http.server, json, socketserver, threading
 from pathlib import Path
@@ -137,5 +137,8 @@ if __name__ == '__main__':
             stream = list(c.rpc_stream('tools/list', params={}))
             methods = [m.method for m in stream if 'method' in m]
             test_eq('notifications/message' in methods, True)
+        with MCPClient(LegacySSETransport(url), auto_initialize=False, auto_tools=False) as c:
+            test_fail(lambda: c._wait_for_legacy_endpoint(timeout=2), exc=MCPTransportError)
+
     finally: shutdown()
     print('ok')
