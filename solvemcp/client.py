@@ -7,7 +7,7 @@ import httpx
 from fastcore.basics import AttrDict
 from fastcore.meta import delegates
 from fastcore.utils import *
-from toolslm.funccall import mk_tool
+from fastcore.funccall import mk_tool
 
 from .transports import (LegacySSETransport, MCPError, MCPRemoteError, MCPTimeout, MCPTransport,
                          MCPTransportError, StdioTransport, StreamableHTTPTransport, _as_list,
