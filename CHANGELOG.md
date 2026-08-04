@@ -1,6 +1,10 @@
 <!-- do not remove -->
 
+## 0.0.2
+
+- Move dep
+
+
 ## 0.0.1
 
 - init release
-
