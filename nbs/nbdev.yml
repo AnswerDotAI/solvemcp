@@ -1,0 +1,14 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "solvemcp"
+  site-url: "https://AnswerDotAI.github.io/solvemcp"
+  description: "solvemcp - a small, pragmatic Model Context Protocol (MCP) client."
+  repo-branch: main
+  repo-url: "https://github.com/AnswerDotAI/solvemcp"
+
+format-links:
+  - html
+  - format: commonmark
+    text: Markdown
