@@ -5,4 +5,4 @@ d = { 'settings': { 'branch': 'main',
                 'doc_host': 'https://AnswerDotAI.github.io',
                 'git_url': 'https://github.com/AnswerDotAI/solvemcp',
                 'lib_path': 'solvemcp'},
-  'syms': {'solvemcp.client': {}, 'solvemcp.transports': {}}}
+  'syms': {}}
